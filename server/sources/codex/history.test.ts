@@ -1,5 +1,6 @@
 // Histórico do terminal do Codex: listagem dos rollouts recentes e a sessão resolvida com segurança.
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, unlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import * as zlib from 'node:zlib';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { setQuiet } from '../../log';
@@ -31,6 +32,31 @@ function setup() {
 }
 
 describe('histórico do Codex', () => {
+  it('inclui chats antigos compactados no modo completo, preserva o original e usa o título do Codex', async () => {
+    const { home, now } = setup();
+    const cache = tempDir();
+    cleanups.push(cache.cleanup);
+    const path = home.rollout(A, [R.meta(A, { at: now - 40 * 86_400_000, cwd: '/projeto' }), R.user(A, 't', 'u', 'primeiro pedido', now - 39 * 86_400_000)]);
+    const raw = readFileSync(path);
+    const compress = (zlib as unknown as { zstdCompressSync: (b: Buffer) => Buffer }).zstdCompressSync;
+    const compressed = compress(raw);
+    writeFileSync(`${path}.zst`, compressed);
+    utimesSync(`${path}.zst`, (now - 39 * 86_400_000) / 1000, (now - 39 * 86_400_000) / 1000);
+    unlinkSync(path);
+    writeFileSync(join(home.dir, 'session_index.jsonl'), JSON.stringify({ id: A, thread_name: 'Meu supervisor' }) + '\n');
+    const history = new CodexHistory({ accounts: () => [{ id: '.codex', dir: home.dir }], openAgentOf: () => undefined, maxAgeMs: Infinity, limit: Number.MAX_SAFE_INTEGER, compressedCacheDir: cache.dir });
+    const list = await history.list();
+    expect(list).toHaveLength(1);
+    expect(list[0]).toMatchObject({ sessionId: A, title: 'Meu supervisor', open: false });
+    const resolved = history.resolve('.codex', A);
+    expect('path' in resolved).toBe(true);
+    if ('path' in resolved) {
+      expect(resolved.path.startsWith(cache.dir)).toBe(true);
+      expect(readFileSync(resolved.path)).toEqual(raw);
+    }
+    expect(readFileSync(`${path}.zst`)).toEqual(compressed);
+  });
+
   it('lista os rollouts dos últimos 7 dias (sessions/ e archived_sessions/), sem subagentes e internos', async () => {
     const { home, history, now, open } = setup();
     home.rollout(A, [R.meta(A, { at: now - 3_600_000, cwd: '/projetos/loja' }), R.user(A, 't', 'u', 'Arrume o checkout', now - 3_590_000), R.agent(A, 't', 'a', 'ok', now - 3_000_000)]);

@@ -11147,3 +11147,18 @@ html.is-replay #world {
 .ui-world-chip__visitors[hidden] {
   display: none;
 }
+/* Biblioteca pessoal local: skills e sessões, sem alterar presença no escritório. */
+.ui-library { color: #edeef3; background: #182232; border: 1px solid #607188; border-radius: 16px; padding: 24px; width: min(900px, 92vw); max-height: 88vh; overflow: auto; font: 15px/1.5 system-ui, sans-serif; }
+.ui-library::backdrop { background: #0009; }
+.ui-library__head, .ui-library__filters, .ui-library__actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ui-library__head { justify-content: space-between; }
+.ui-library h2, .ui-library h3, .ui-library h4 { margin: 0 0 8px; }
+.ui-library h3 { margin-top: 24px; }
+.ui-library h4 { overflow-wrap: anywhere; }
+.ui-library input { box-sizing: border-box; width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #607188; background: #101827; color: white; margin: 10px 0; }
+.ui-library button, .ui-library a { color: #b5e3ff; background: #26374c; border: 1px solid #58748f; border-radius: 7px; padding: 7px 12px; cursor: pointer; text-decoration: none; }
+.ui-library :focus-visible { outline: 3px solid #9edaff; outline-offset: 2px; }
+.ui-library__card { background: #202e40; border: 1px solid #3d5067; border-radius: 10px; padding: 16px; margin: 10px 0; }
+.ui-library__card p { margin: 8px 0; overflow-wrap: anywhere; }
+.ui-library__badge { font-size: 12px; color: #b9d9d1; }
+.ui-library__note { color: #c3cdd9; font-size: 13px; }

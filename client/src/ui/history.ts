@@ -182,7 +182,7 @@ export class HistoryPopover implements UiComponent {
       'div',
       { class: 'ui-popover ui-hist', role: 'dialog', tabIndex: -1, attrs: { 'aria-label': tr('Histórico de sessões'), id: 'ui-history', popover: 'auto' } },
       h('div', { class: 'ui-popover__head' }, h('h2', { text: tr('Histórico de sessões') }), close),
-      h('p', { class: 'ui-hist__hint', text: tr('Últimos 7 dias, de todas as contas. Clique para ler a conversa no terminal.') }),
+      h('p', { class: 'ui-hist__hint', text: tr('Sessões disponíveis de todas as contas. Clique para ler a conversa no terminal.') }),
       h('label', { class: 'ui-search ui-hist__search' }, searchIcon, this.input),
       this.stateEl,
       this.listEl,
@@ -244,7 +244,7 @@ export class HistoryPopover implements UiComponent {
     // aria-disabled (e não disabled): o botão continua focável e a dica do porquê aparece no hover.
     setAttr(this.button, 'aria-disabled', available ? null : 'true');
     this.button.classList.toggle('is-disabled', !available);
-    setTitle(this.button, available ? tr('Histórico de sessões (últimos 7 dias)') : TERMINAL_UNAVAILABLE_HINT);
+    setTitle(this.button, available ? tr('Histórico de sessões') : TERMINAL_UNAVAILABLE_HINT);
     setAttr(this.button, 'aria-label', available ? tr('Histórico de sessões') : tr('Histórico de sessões: {0}', [TERMINAL_UNAVAILABLE_HINT]));
     if (!this.isOpen) return;
     if (!available) return this.hide();
@@ -284,7 +284,7 @@ export class HistoryPopover implements UiComponent {
     let stateText = '';
     if (this.state === 'error') stateText = this.error || tr('Não foi possível carregar o histórico.');
     else if (loading) stateText = tr('Carregando as sessões…');
-    else if (!this.sessions.length) stateText = tr('Nenhuma sessão nos últimos 7 dias.');
+    else if (!this.sessions.length) stateText = tr('Nenhuma sessão disponível.');
     else if (!shown.length) stateText = tr('Nenhuma sessão encontrada para “{0}”.', [q]);
     setText(this.stateText, stateText);
     setHidden(this.stateEl, !stateText);

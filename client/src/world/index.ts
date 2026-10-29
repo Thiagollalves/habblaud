@@ -43,6 +43,7 @@ export interface VisitWorld {
 }
 
 export interface CreateWorldOptions {
+  brokerage?: boolean;
   /**
    * Visita a um prédio do mundo (cena Visita): `Sim` sem nada que dependa do tempo do status (SimMode.visit), o
    * visitante andando com o teclado e o clique (a câmera o segue) e as carteiras da vida social na chave `world:`.
@@ -51,7 +52,7 @@ export interface CreateWorldOptions {
 }
 
 export function createWorld(canvas: HTMLCanvasElement, store: OfficeStore, o: CreateWorldOptions = {}): WorldApi & { debug: WorldDebug; visit: VisitWorld } {
-  let options: WorldOptions = { ...DEFAULT_WORLD_OPTIONS };
+  let options: WorldOptions = { ...DEFAULT_WORLD_OPTIONS, brokerage: o.brokerage };
   const visitMode = !!o.visit;
   const camera = new Camera();
   // Simulação e desenho são recriados quando o timelapse entra, pula ou sai (rebuild).

@@ -128,6 +128,8 @@ export interface AgentStats {
 }
 
 export interface AgentInfo {
+  /** Apenas a cena local da corretora: destino relativo à sala, em tiles caminháveis. */
+  brokerPosition?: { x: number; y: number };
   /**
    * Estável enquanto o agente existir. Claude Code: principal "<conta>:<pid>", sub "<sessionId>:<agentId>".
    * Codex: principal e sub "<conta>:<threadId>" (o sub com `parentId`).

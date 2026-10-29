@@ -5,6 +5,8 @@
 export type Selection = { type: 'agent'; id: string } | { type: 'room'; id: string } | null;
 
 export interface WorldOptions {
+  /** Tema local da corretora; não altera dados enviados ao World. */
+  brokerage?: boolean;
   /** Mostrar etiquetas com os nomes dos personagens. */
   showNames: boolean;
   /** Balões de atividade: todos, só importantes (precisa de você, selecionado, mudanças recentes) ou nenhum. */

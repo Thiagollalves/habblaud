@@ -124,6 +124,9 @@ export class OfficeStore {
     return () => void set.delete(cb);
   }
 
+  /** Fonte de visualização isolada (corretora): não publica no backend nem inicia leitores nativos. */
+  publishView(snap: OfficeSnapshot): void { this.setSnapshot(snap); }
+
   connect(): void {
     if (!this.stopped) return;
     this.stopped = false;

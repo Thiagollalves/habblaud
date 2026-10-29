@@ -304,7 +304,7 @@ export class Overlay {
     }
 
     // placas e pílulas primeiro: são fixas e grandes; balões e etiquetas desviam delas
-    this.drawRoomTexts(now, zoom);
+    this.drawRoomTexts(now, zoom, !!opts.brokerage);
     this.drawFxBanners(now, zoom);
 
     // ---- coleta balões e etiquetas dos personagens visíveis
@@ -407,7 +407,11 @@ export class Overlay {
 
   // =================================================================== salas
 
-  private drawRoomTexts(now: number, zoom: number): void {
+  private drawRoomTexts(now: number, zoom: number, brokerage = false): void {
+    const coreNames = brokerage ? {
+      'core:recepcao': tr('Recepção Private'), 'core:banheiros': tr('Compliance'),
+      'core:copa': tr('Café do Mercado'), 'core:lounge': tr('Comitê de Alocação'),
+    } as Record<string, string> : CORE_NAMES;
     const { camera } = this;
     const vw = camera.viewW;
     const vh = camera.viewH;
@@ -419,7 +423,7 @@ export class Overlay {
       const anim = room ? buildAnim(room.phase, room.progress(now)) : null;
       // texto da placa quando ela fica grande o bastante para ler; senão, o nome flutuante
       const rect = this.renderer.signRect(vis);
-      const text = room ? room.info.name : vis.id === 'core:recepcao' ? 'Habblaud' : null;
+      const text = room ? room.info.name : vis.id === 'core:recepcao' ? (brokerage ? 'NEXUS CAPITAL' : 'Habblaud') : null;
       const readable = !!rect && rect.h * zoom >= SIGN_MIN_PX;
       if (readable && rect && text && (!anim || anim.sign >= 1)) {
         const ax = this.sx(rect.x);
@@ -431,7 +435,7 @@ export class Overlay {
           this.place(ax, ay, w, h);
         }
       }
-      if (room ? readable : zoom >= 1.4) continue;
+      if (!brokerage && (room ? readable : zoom >= 1.4)) continue;
       const cx = this.sx((r.x + r.w / 2) * TILE);
       const cy = this.sy(r.y * TILE + 6);
       if (cx < -200 || cx > vw + 200 || cy < -40 || cy > vh + 40) continue;
@@ -439,8 +443,8 @@ export class Overlay {
         // endereço antigo de uma mudança: o nome já está na sala nova
         if (!room.present || room.ghost || (anim && anim.walls < 0.6)) continue;
         this.drawRoomPill(room.info.name, cx, cy, colW - 8, room.accounts, this.countIn(room.id), room.theme.accent, room.lightOn);
-      } else if (CORE_NAMES[vis.id]) {
-        this.drawCorePill(CORE_NAMES[vis.id], cx, cy, colW - 8);
+      } else if (coreNames[vis.id]) {
+        this.drawCorePill(coreNames[vis.id], cx, cy, colW - 8);
       }
     }
   }

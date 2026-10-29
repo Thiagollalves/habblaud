@@ -71,7 +71,7 @@ export function layoutReception(): AreaLayout {
   return a;
 }
 
-export function layoutRestroom(): AreaLayout {
+export function layoutRestroom(brokerage = false): AreaLayout {
   const b = new AreaBuilder(RESTROOM_ID, 'restroom', { x: 0, y: SOUTH_Y, w: COL_W, h: ROOM_H });
   const wall = CORE_WALLS.restroom;
   b.floor('tile_white', 0, 0, 16, 12, 201);
@@ -85,6 +85,17 @@ export function layoutRestroom(): AreaLayout {
   b.walk(1, 2, 14, 9);
   b.walk(7, 0, 2, 2);
   b.area.door = { x: 7, y: SOUTH_Y, w: 2, h: 2 };
+
+  if (brokerage) {
+    b.furn('reception_desk', 8, 4, undefined, { order: 0.4 });
+    b.wall('whiteboard', 5, undefined, { order: 0.3 });
+    b.wall('clock', 12, undefined, { order: 0.4 });
+    b.furn('plant_tall', 1, 9, 'ficus', { order: 0.2 });
+    b.furn('plant_tall', 14, 9, 'monstera', { order: 0.2 });
+    b.furn('bench', 3, 8, undefined, { order: 0.5 });
+    b.rug(2, 5, 10, 4, '#244c56', 204);
+    return b.build();
+  }
 
   // pias com espelho
   for (let i = 0; i < 3; i++) {

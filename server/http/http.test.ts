@@ -13,6 +13,7 @@ import { createApiHandler, type ApiDeps } from './app';
 import { createRequestGuard, hostAllowed, hostnameOf, isLoopbackHost, originAllowed, parseAllowedHosts } from './guard';
 import { Hub } from './sse';
 import { createStaticHandler, IMMUTABLE, REVALIDATE } from './static';
+import { simulationEvents, type BrokerSnapshot } from '../../shared/broker';
 
 setQuiet(true);
 
@@ -100,6 +101,29 @@ describe('API HTTP', () => {
   afterEach(async () => {
     await env.close();
     env.cleanup();
+  });
+
+  it('broker: evento → SSE → decisão única, sem contaminar o snapshot nativo', async () => {
+    const ctrl = new AbortController();
+    const stream = await fetch(`${env.base}/api/broker/stream`, { signal: ctrl.signal });
+    expect(stream.headers.get('content-type')).toBe('text/event-stream');
+    const reader = stream.body!.getReader();
+    const decoder = new TextDecoder();
+    let received = decoder.decode((await reader.read()).value);
+    const post = (path: string, body: unknown) => fetch(env.base + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    for (const event of simulationEvents(0, 'http')) expect((await post('/api/broker/event', event)).status).toBe(202);
+    while (!received.includes('sim-http-0-order')) received += decoder.decode((await reader.read()).value);
+    expect(received).toContain('event: snapshot');
+    ctrl.abort();
+    const response = await fetch(`${env.base}/api/broker/snapshot`);
+    const broker = await response.json() as BrokerSnapshot;
+    const order = broker.orders[0];
+    expect((await post(`/api/broker/orders/${order.id}/decision`, { status: 'approved' })).status).toBe(200);
+    expect((await post(`/api/broker/orders/${order.id}/decision`, { status: 'rejected' })).status).toBe(409);
+    expect((await snapshotOf(env.base)).agents.map(a => a.id)).toEqual(['.claude:1']);
+    expect((await post('/api/broker/event', { type: 'anything' })).status).toBe(400);
+    expect((await raw(env.base, '/api/broker/snapshot', { headers: { Host: 'habblaud.lan' } })).status).toBe(403);
+    expect((await raw(env.base, '/api/broker/event', { method: 'POST', headers: { Origin: 'https://evil.test', 'Content-Type': 'application/json' }, body: '{}' })).status).toBe(403);
   });
 
   it('GET /api/snapshot', async () => {

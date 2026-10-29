@@ -6,14 +6,15 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/marmottajr/habblaud.git"
+    "url": "git+https://github.com/Thiagollalves/habblaud.git"
   },
-  "homepage": "https://github.com/marmottajr/habblaud#readme",
+  "homepage": "https://github.com/Thiagollalves/habblaud#readme",
   "type": "module",
   "engines": {
     "node": ">=22.12"
   },
   "scripts": {
+    "simulate:broker": "tsx scripts/simulate-broker.ts",
     "dev": "tsx watch --clear-screen=false --exclude './client/**' server/index.ts --dev",
     "dev:client": "vite --config vite.config.ts",
     "demo": "HABBLAUD_DEMO=1 npm run dev",
@@ -62,5 +63,8 @@
     "@xterm/addon-serialize": "^0.14.0",
     "@xterm/headless": "^6.0.0",
     "node-pty": "^1.1.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.118.0"
   }
 }

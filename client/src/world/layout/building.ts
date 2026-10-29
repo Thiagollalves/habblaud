@@ -19,9 +19,11 @@ export interface BuildingLayout {
 }
 
 let coreCache: AreaLayout[] | null = null;
+let brokerCoreCache: AreaLayout[] | null = null;
 
 /** Áreas fixas do núcleo (calculadas uma vez). */
-export function coreAreas(): AreaLayout[] {
+export function coreAreas(brokerage = false): AreaLayout[] {
+  if (brokerage) return (brokerCoreCache ??= [layoutReception(), layoutRestroom(true), layoutCafe(), layoutLounge()]);
   return (coreCache ??= [layoutReception(), layoutRestroom(), layoutCafe(), layoutLounge()]);
 }
 
@@ -46,8 +48,8 @@ export function buildWalkGrid(cols: number, areas: readonly AreaLayout[], versio
   return grid;
 }
 
-export function assembleBuilding(cols: number, rooms: readonly AreaLayout[], version = 0): BuildingLayout {
-  const core = coreAreas();
+export function assembleBuilding(cols: number, rooms: readonly AreaLayout[], version = 0, brokerage = false): BuildingLayout {
+  const core = coreAreas(brokerage);
   const corridor = layoutCorridor(cols);
   const all = [...core, corridor, ...rooms];
   const grid = buildWalkGrid(cols, all, version);
