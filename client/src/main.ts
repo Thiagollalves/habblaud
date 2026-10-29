@@ -1,6 +1,7 @@
 // Ponto de entrada do cliente: primeiro o dicionário do idioma ativo (só ele vai para o navegador), depois o app
 // (client/src/app.ts), porque vários módulos chamam tr() ao carregar. Se o dicionário não carregar, fica em português.
 import { getLocale, registerDictionary, type Locale } from '../../shared/i18n';
+import { entryFor } from './entry';
 
 const LOADERS: Partial<Record<Locale, () => Promise<Readonly<Record<string, string>>>>> = {
   en: () => import('../../shared/locales/en').then((m) => m.EN),
@@ -12,8 +13,6 @@ const locale = getLocale();
 const load = LOADERS[locale];
 const dictionary = load ? load().then((d) => registerDictionary(locale, d)).catch(() => undefined) : Promise.resolve();
 void dictionary.then(async () => {
-  const params = new URLSearchParams(location.search);
-  const app = params.has('office') || params.has('mock') || location.hash === '#meus-agentes'
-    ? await import('./app') : await import('./broker/app');
+  const app = entryFor(location.search, location.hash) === 'office' ? await import('./app') : await import('./broker/app');
   app.start();
 });

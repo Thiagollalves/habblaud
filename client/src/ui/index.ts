@@ -183,7 +183,7 @@ export function createUI(root: HTMLElement, store: OfficeStore, world: WorldApi,
   const library = new AgentLibrary(terminal);
   root.append(library.el);
   topbar.panelGroup.prepend(library.button);
-  topbar.panelGroup.prepend(h('a', { class: 'ui-btn', text: tr('Corretora'), attrs: { href: '/' } }));
+  topbar.panelGroup.prepend(h('a', { class: 'ui-btn', text: tr('Painel financeiro'), attrs: { href: '/?broker=1' } }));
   if (typeof location !== 'undefined' && location.hash === '#meus-agentes') requestAnimationFrame(() => void library.open());
   topbar.panelGroup.prepend(history.button);
   // Terminal do agente: o interativo se a sessão roda aqui; senão o de leitura, com "Assumir daqui" para

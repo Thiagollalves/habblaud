@@ -30,6 +30,9 @@ export class AgentLibrary {
       this.status, this.list,
       h('p', { class: 'ui-library__note', text: tr('Conversas somente na nuvem não estão disponíveis aqui. Copiar uma chamada de skill não inicia uma tarefa. Para usar, cole a chamada em um chat do Codex e descreva o trabalho.') }),
     );
+    this.el.addEventListener('close', () => {
+      if (typeof location !== 'undefined' && location.hash === '#meus-agentes') history.replaceState(null, '', location.pathname + location.search);
+    });
   }
 
   async open(): Promise<void> {

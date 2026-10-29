@@ -12,6 +12,8 @@ do meio (0.**3**.0).
 
 ### Corretora de agentes
 
+- Escritório completo do Habblaud como tela inicial, conectado diretamente ao Codex, com salas por projeto e controles nativos. Painel financeiro em `?broker=1`; projetos também permanecem separados nesse painel.
+
 - Nova entrada Nexus Capital: mesas financeiras, HUD demonstrativo, terminal de eventos e autorizações de operação independentes das permissões do Codex.
 - Eventos locais validados em `/api/broker/event`, simulação identificada e integração Supabase com autenticação, Realtime e acesso por proprietário.
 - Escritório original e biblioteca Meus agentes disponíveis em `?office=1`; simulações não são enviadas ao Habblaud World.

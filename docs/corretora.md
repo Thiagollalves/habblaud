@@ -4,7 +4,7 @@
 
 | Responsabilidade | Arquivos atuais | Transformação |
 | --- | --- | --- |
-| Inicialização | `client/src/main.ts`, `app.ts` | Entrada da corretora; escritório original acessível por `?office=1`. |
+| Inicialização | `client/src/main.ts`, `entry.ts`, `app.ts` | Escritório nativo como entrada padrão; painel financeiro acessível por `?broker=1`. |
 | Geometria e salas | `client/src/world/layout/{core,room,building}.ts` | Tema opcional da corretora e setores próprios, preservando colisões. |
 | Coordenadas, caminhos, poses | `client/src/world/sim/{sim,character,behavior}.ts`, `world/path/` | Reutilizar movimento por sala e mão levantada; aceitar destinos dentro de salas. |
 | Etiquetas e contadores | `client/src/world/render/overlay.ts` | Rótulos do tema; contadores existentes de agentes e pendências. |
@@ -22,12 +22,18 @@ Os indicadores financeiros iniciais são demonstrativos. Aprovação registra um
 
 1. `npm ci`, depois `npm run build`.
 2. Inicie com `node --env-file=.env dist/server/index.js` ou use o atalho local já instalado. `npm run dev` inicia o ambiente de desenvolvimento.
-3. Abra `http://127.0.0.1:4747/`. O nome visual **Nexus Capital** é provisório.
-4. Clique em **Iniciar simulação**. Seis analistas fictícios ocupam as mesas e um pedido PETR4 aparece para revisão. Clique no pedido ou no avatar com a mão levantada.
+3. Abra `http://127.0.0.1:4747/` para o escritório completo, conectado ao Codex. As salas representam os projetos reais, e os personagens mostram os estados das sessões. O nome visual **Nexus Capital** é provisório.
+4. Abra **Painel financeiro** (`?broker=1`) e clique em **Iniciar simulação**. Seis analistas fictícios ocupam as mesas e um pedido PETR4 aparece para revisão. Clique no pedido ou no avatar com a mão levantada.
 5. **Pausar simulação** interrompe novos eventos e conserva os registros para revisão. Iniciar novamente substitui somente os dados simulados. Nenhuma ordem real é criada ou enviada.
 6. Alternativa: `npm run simulate:broker` envia 60 ciclos a cada 3,5 segundos. `BROKER_SIM_STEPS` muda a quantidade, até 500. Ctrl+C encerra. Não rode os dois simuladores juntos.
 
 O botão **Meus agentes** abre as skills e o histórico do Codex preservados no escritório original. Somente sessões realmente abertas aparecem como agentes locais. Skills salvas são instruções, não processos permanentemente em execução.
+
+### Conexão direta com o Codex
+
+A leitura das sessões locais funciona sem hooks. Para acrescentar eventos diretos e pedidos de aprovação pelo escritório, execute `npm run codex:install`. O instalador preserva hooks de outros aplicativos e faz backup antes de alterar um arquivo existente. Depois, aprove os hooks do Habblaud em `/hooks` dentro do Codex: o instalador nunca grava hashes de confiança no `config.toml`.
+
+`npm run codex:status` confere a instalação e a resposta do servidor. A aprovação no escritório espera até 25 segundos e depois retorna ao fluxo normal do Codex. O botão de leitura de conversa e as demais ações são disponibilizados conforme a capacidade real da sessão; configurar hooks não inicia tarefas nem retoma chats automaticamente.
 
 ## Contrato REST local
 

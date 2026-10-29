@@ -27,4 +27,26 @@ describe('projeção da corretora', () => {
     expect(snap.rooms).toHaveLength(6);
     expect(new Set(snap.agents.map(a => a.id)).size).toBe(2);
   });
+  it('preserva as salas de cada projeto Codex e o vínculo entre agente e subagente', () => {
+    const event = simulationEvents(0, 'native')[0];
+    if (event.type !== 'status') throw new Error('fixture');
+    const local = emptyBroker(); local.agents.push({ ...event.agent, source: 'simulation' });
+    const cloud = { agents: [], orders: [], events: [] };
+    const native = brokerProjection(local, cloud, null, 1);
+    const base = native.agents[0];
+    native.rooms = [
+      { id: '/trading', name: 'Trading', path: '/trading', slot: 2, seed: 1, createdAt: 1 },
+      { id: '/supervisor', name: 'Supervisão', path: '/supervisor', slot: 5, seed: 2, createdAt: 1 },
+    ];
+    native.agents = [
+      { ...base, id: 'codex:main', provider: 'codex', roomId: '/trading', canMessage: true },
+      { ...base, id: 'codex:sub', provider: 'codex', kind: 'sub', parentId: 'codex:main', roomId: '/supervisor' },
+    ];
+    const result = brokerProjection(emptyBroker(), cloud, native, 2);
+    expect(result.rooms.slice(-2).map(r => [r.id, r.name])).toEqual([['native:/trading', 'Trading'], ['native:/supervisor', 'Supervisão']]);
+    expect(result.agents.map(a => a.roomId)).toEqual(['native:/trading', 'native:/supervisor']);
+    expect(result.agents[1].parentId).toBe('native:codex:main');
+    expect(native.agents[0].id).toBe('codex:main');
+    expect(native.agents[0].canMessage).toBe(true);
+  });
 });

@@ -25,9 +25,9 @@ export function brokerProjection(local: BrokerSnapshot, cloud: CloudSnapshot, na
       stats: { toolCalls: 0, tokensIn: 0, tokensOut: 0, subagents: 0 } });
   }
   // Mantém o que o Codex realmente está fazendo, sem converter comandos em operações financeiras.
-  if (native?.agents.length) {
-    rooms.push({ id: 'broker:codex', name: tr('Agentes Codex & Projetos'), path: '', slot: rooms.length, seed: 42, createdAt: now });
-    agents.push(...native.agents.map(a => ({ ...a, id: `native:${a.id}`, parentId: a.parentId ? `native:${a.parentId}` : undefined, roomId: 'broker:codex', role: a.provider === 'codex' ? tr('Codex local') : tr('Claude local'), permission: undefined, canMessage: false })));
+  if (native) {
+    rooms.push(...[...native.rooms].sort((a, b) => a.slot - b.slot).map((room, index) => ({ ...room, id: `native:${room.id}`, slot: DESKS.length + index })));
+    agents.push(...native.agents.map(a => ({ ...a, id: `native:${a.id}`, parentId: a.parentId ? `native:${a.parentId}` : undefined, roomId: `native:${a.roomId}`, role: a.provider === 'codex' ? tr('Codex local') : tr('Claude local'), permission: undefined, canMessage: false })));
   }
   return { rev, serverTime: now, rooms, agents, accounts: native?.accounts ?? [], meta: { demo: false, sources: [], startedAt: now, version: 'broker', terminal: false } };
 }

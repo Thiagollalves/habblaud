@@ -54,8 +54,9 @@ export function start(): void {
   }, 'b-button--primary');
   const cloudButton = button(tr('Conectar Supabase'), () => loginDialog.showModal());
   const header = h('header', { class: 'b-header' },
-    h('a', { class: 'b-brand', attrs: { href: '/', 'aria-label': tr('Nexus Capital início') } }, h('span', { class: 'b-mark', text: 'N' }), h('span', {}, h('strong', { text: 'NEXUS CAPITAL' }), h('small', { text: tr('CORRETORA DE AGENTES · LAB') }))),
+    h('a', { class: 'b-brand', attrs: { href: '/', 'aria-label': tr('Voltar ao escritório Codex') } }, h('span', { class: 'b-mark', text: 'N' }), h('span', {}, h('strong', { text: 'NEXUS CAPITAL' }), h('small', { text: tr('CORRETORA DE AGENTES · LAB') }))),
     h('nav', { class: 'b-actions', attrs: { 'aria-label': tr('Controles da corretora') } },
+      h('a', { class: 'b-link', text: tr('Escritório Codex ↗'), attrs: { href: '/' } }),
       h('a', { class: 'b-link', text: tr('Meus agentes ↗'), attrs: { href: '/?office=1#meus-agentes' } }), cloudButton, simButton));
   const metric = (title: string, value: string, note: string, cls = '') => h('div', { class: `b-metric ${cls}` }, label(title), h('strong', { text: value }), h('small', { text: note }));
   const agentCount = h('strong', { text: '0' });

@@ -10,6 +10,7 @@ import { migrateLegacyKeys, safeLocalStorage } from './ui/prefs';
 import { getLocale, tr } from '../../shared/i18n';
 
 export function start(): void {
+  document.title = tr('Nexus Capital • Escritório Codex');
   // Antes de tudo: o mundo (carteiras) e a UI (preferências) leem o localStorage ao serem criados.
   migrateLegacyKeys(safeLocalStorage());
 
@@ -24,7 +25,7 @@ export function start(): void {
   const store = new OfficeStore({ mock: params.has('mock') });
   const worldCanvas = document.getElementById('world') as HTMLCanvasElement;
   const uiRoot = document.getElementById('ui') as HTMLElement;
-  const world = createWorld(worldCanvas, store);
+  const world = createWorld(worldCanvas, store, { brokerage: true });
   const city = cityHost({ world, worldCanvas, uiRoot, mock: store.mock, params, version: () => store.liveSnapshot?.meta.version ?? '' });
   createUI(uiRoot, store, world, city);
   // O que esta página pode fazer (porta local ou remota com login) chega antes do primeiro snapshot (ou desiste em
