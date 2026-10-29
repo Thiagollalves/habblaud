@@ -1,3 +1,14 @@
+## Nexus Capital — Corretora de agentes de IA
+
+Este fork acrescenta uma corretora gamificada com Codex local, Supabase Realtime e simulação identificada. Nome visual provisório: Nexus Capital. O trabalho original Habblaud permanece abaixo, com sua licença e autoria.
+
+- Abra `/` para a corretora e `/?office=1` para o escritório original e a biblioteca Meus agentes.
+- Clique em **Iniciar simulação** ou execute `npm run simulate:broker` com o servidor ligado.
+- [Arquitetura, contrato dos eventos, Supabase e limitações](docs/corretora.md).
+- Valores do HUD são demonstrativos; aprovações registram decisões, sem conexão de execução com bolsa/corretora.
+
+---
+
 <p align="center">
   <img src="client/public/assets/brand/logo-mark@4x.png" width="96" alt="Habblaud logo: a small pixel-art building" />
 </p>

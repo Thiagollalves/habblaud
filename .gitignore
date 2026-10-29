@@ -3,6 +3,9 @@ dist/
 .DS_Store
 *.log
 .env
+.env.local
+local-data/
+supabase/.temp/
 docker-compose.override.yml
 scripts/assets/.cache/
 

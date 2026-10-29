@@ -17,10 +17,10 @@ import { readCustomTitleFile } from './watcher';
 import { tr } from '../../shared/i18n';
 
 /** Janela da listagem: sessões com o transcript modificado nos últimos 7 dias. */
-export const HISTORY_DAYS = 7;
-export const HISTORY_MAX_AGE_MS = HISTORY_DAYS * 24 * 3600_000;
+export const HISTORY_DAYS = process.env.HABBLAUD_HISTORY_ALL === '1' ? 0 : 7;
+export const HISTORY_MAX_AGE_MS = HISTORY_DAYS ? HISTORY_DAYS * 24 * 3600_000 : Infinity;
 /** Máximo de sessões listadas (as mais recentes). */
-export const HISTORY_LIMIT = 150;
+export const HISTORY_LIMIT = HISTORY_DAYS ? 150 : Number.MAX_SAFE_INTEGER;
 /** Começo do arquivo lido: projeto (cwd), primeira atividade e o primeiro prompt. */
 export const HEAD_BYTES = 64 * 1024;
 /** Fim do arquivo lido: o Claude Code regrava título e último prompt a cada turno, então eles ficam perto do fim. */

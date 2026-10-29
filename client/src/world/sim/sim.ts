@@ -151,7 +151,7 @@ export class Sim {
   ) {
     this.visit = !!mode.visit;
     this.social = new Social(this, storage);
-    this.building = assembleBuilding(columnsFor([]), [], 0);
+    this.building = assembleBuilding(columnsFor([]), [], 0, !!this.options().brokerage);
     this.finder = new PathFinder(this.building.grid);
     this.spots.setSpots(this.building.spots);
     for (const s of this.spots.ofKind('elevator')) this.elevators.push(new Elevator(this.elevators.length, s.id));
@@ -533,6 +533,7 @@ export class Sim {
       cols,
       present.map((r) => r.layout),
       this.layoutVersion + 1,
+      !!this.options().brokerage,
     );
     this.building = building;
     this.layoutVersion++;
@@ -1176,6 +1177,21 @@ export class Sim {
   private think(ch: Character, now: number): boolean {
     if (ch.gone) return false;
     if (ch.mode === 'leave') return this.planLeave(ch, now);
+    const target = ch.info.brokerPosition;
+    const targetRoom = this.rooms.get(ch.roomId);
+    if (this.options().brokerage && target && targetRoom?.present) {
+      const tx = targetRoom.layout.rect.x + target.x;
+      const ty = targetRoom.layout.rect.y + target.y;
+      // Destinos sobre móveis/paredes são ignorados; o motor escolhe a mesa normal.
+      if (this.building.grid.get(tx, ty) === FREE) {
+        const steps: Step[] = [];
+        this.pushLeave(ch, steps);
+        if (ch.tx !== tx || ch.ty !== ty) steps.push({ t: 'go', tx, ty });
+        steps.push({ t: 'until', cond: () => ch.info.brokerPosition !== target, minMs: 500, maxMs: 3000, pose: ch.mode === 'wait' ? 'raise_hand' : 'read', held: ch.mode === 'wait' ? 'none' : 'laptop', dir: 'down' });
+        ch.queue.push(...steps);
+        return true;
+      }
+    }
     if (ch.mode === 'deliver') return this.planDeliver(ch, now);
     const room = this.rooms.get(ch.roomId);
     if (!room || !room.present) return this.planLobby(ch, room);

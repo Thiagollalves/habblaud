@@ -19,6 +19,7 @@ import { Drawer } from './drawer';
 import { FeedPanel } from './feed';
 import { HelpDialog } from './help';
 import { HistoryPopover } from './history';
+import { AgentLibrary } from './library';
 import { Deliveries } from './deliveries';
 import { HoverTip } from './hovertip';
 import { hasRunningShells } from './model';
@@ -179,6 +180,11 @@ export function createUI(root: HTMLElement, store: OfficeStore, world: WorldApi,
   const terminal = new TerminalPanel(ctx, pty);
   // Histórico de sessões (terminal): botão no grupo dos painéis da barra superior.
   const history = new HistoryPopover(ctx, terminal);
+  const library = new AgentLibrary(terminal);
+  root.append(library.el);
+  topbar.panelGroup.prepend(library.button);
+  topbar.panelGroup.prepend(h('a', { class: 'ui-btn', text: tr('Corretora'), attrs: { href: '/' } }));
+  if (typeof location !== 'undefined' && location.hash === '#meus-agentes') requestAnimationFrame(() => void library.open());
   topbar.panelGroup.prepend(history.button);
   // Terminal do agente: o interativo se a sessão roda aqui; senão o de leitura, com "Assumir daqui" para
   // continuar nesta janela (sem o de leitura, o interativo mostra o aviso de "em outro terminal").

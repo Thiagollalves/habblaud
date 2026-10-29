@@ -1,5 +1,7 @@
 // Rotas da API (/api/*). Respostas JSON; rotas desconhecidas -> 404 JSON.
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { BrokerService } from '../broker/service';
+import { brokerHandler } from '../broker/http';
 import { NAME_MAX, parseAppearanceParts, parseCharacterName, parseSeed } from '../../shared/appearance';
 import type { AccessInfo, AgentInfo, ModSummary, OfficeSnapshot, SourceInfo, UpdateStatus } from '../../shared/types';
 import type { AccountsService } from '../accounts/service';
@@ -22,6 +24,7 @@ import { AUDIO_BODY_MAX, type DictationService } from '../dictation/dictation';
 import type { DeliveryIndex } from '../deliveries/deliveries';
 import type { FileFetcher } from '../deliveries/fetcher';
 import { HOST_WAIT_MS } from '../host-wait';
+import { personalSkills } from '../sources/codex/skills';
 
 export interface ApiDeps {
   office: Office;
@@ -262,6 +265,7 @@ export function modSummary(
 /** Devolve um handler que trata /api/* e responde false para o resto. */
 export function createApiHandler(deps: ApiDeps): (req: IncomingMessage, res: ServerResponse, url: URL) => boolean {
   const { office, hub, accounts } = deps;
+  const broker = brokerHandler(new BrokerService());
   const terminals = deps.terminal ? deps.terminals : undefined;
 
   const isRemote = (req: IncomingMessage): boolean => !!deps.remote?.is(req);
@@ -332,6 +336,14 @@ export function createApiHandler(deps: ApiDeps): (req: IncomingMessage, res: Ser
     if (path !== '/api' && !path.startsWith('/api/')) return false;
     const method = req.method ?? 'GET';
     const isRead = method === 'GET' || method === 'HEAD';
+
+    if (path.startsWith('/api/broker/')) {
+      if (isRemote(req) || !isLoopbackHost(req.headers.host) || !isLoopbackAddress(req.socket.remoteAddress)) {
+        req.resume();
+        sendJson(res, 403, { error: tr('A corretora local só aceita conexões deste computador.') });
+      } else broker(req, res, path);
+      return true;
+    }
 
     if (isRemote(req) && isLocalOnlyPath(path)) {
       req.resume();
@@ -430,6 +442,12 @@ export function createApiHandler(deps: ApiDeps): (req: IncomingMessage, res: Ser
         }
         terminals.attach(req, res, id);
       }
+      return true;
+    }
+    if (path === '/api/codex/skills') {
+      if (!isRead) methodNotAllowed(res, 'GET');
+      else if (!terminals || isRemote(req) || !trusted(req, 'terminal')) sendJson(res, 403, { error: tr('Disponível somente neste computador.') });
+      else sendJson(res, 200, { skills: personalSkills(accounts.entriesOf('codex')) });
       return true;
     }
     if (path.startsWith('/api/sessions/')) {

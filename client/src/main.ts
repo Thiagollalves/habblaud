@@ -11,4 +11,9 @@ const LOADERS: Partial<Record<Locale, () => Promise<Readonly<Record<string, stri
 const locale = getLocale();
 const load = LOADERS[locale];
 const dictionary = load ? load().then((d) => registerDictionary(locale, d)).catch(() => undefined) : Promise.resolve();
-void dictionary.then(() => import('./app')).then((app) => app.start());
+void dictionary.then(async () => {
+  const params = new URLSearchParams(location.search);
+  const app = params.has('office') || params.has('mock') || location.hash === '#meus-agentes'
+    ? await import('./app') : await import('./broker/app');
+  app.start();
+});

@@ -91,6 +91,26 @@ function newSim(): Sim {
 }
 
 describe('simulação do escritório', () => {
+  it('corretora: Compliance sem sanitários e destino caminhável dentro da sala', () => {
+    const sim = new Sim(art, () => ({ ...DEFAULT_WORLD_OPTIONS, brokerage: true, liveliness: 'calm' }));
+    const clock = { now: T0 };
+    const a = agent('quant', '/broker', 'waiting');
+    sim.applySnapshot(snap([room('/broker', 0)], [a]), clock.now);
+    const compliance = sim.building.core.find(area => area.id === 'core:banheiros')!;
+    expect(compliance.furniture.some(f => f.kind === 'toilet_stall')).toBe(false);
+    const r = sim.rooms.get('/broker')!.layout.rect;
+    let target: { x: number; y: number } | undefined;
+    for (let y = 3; y < 10 && !target; y++) for (let x = 2; x < 14; x++) {
+      if (sim.building.grid.get(r.x + x, r.y + y) === 1) { target = { x, y }; break; }
+    }
+    expect(target).toBeDefined();
+    sim.applySnapshot(snap([room('/broker', 0)], [{ ...a, brokerPosition: target }], 2), clock.now);
+    run(sim, clock, 40, () => sim.chars.get(a.id)!.tx === r.x + target!.x && sim.chars.get(a.id)!.ty === r.y + target!.y);
+    const ch = sim.chars.get(a.id)!;
+    expect([ch.tx, ch.ty]).toEqual([r.x + target!.x, r.y + target!.y]);
+    run(sim, clock, 1);
+    expect(ch.pose).toBe('raise_hand');
+  });
   it('carga inicial: quem trabalha já está sentado digitando, sala acesa', () => {
     const sim = newSim();
     const clock = { now: T0 };
